@@ -5,8 +5,8 @@ import Hero from "../components/Hero";
 import About from "../components/About";
 import KeyFacts from "../components/KeyFacts";
 import SelectedWork from "../components/SelectedWork";
-import Services from "@/components/Services";
-import Project from "@/components/Project";
+// import Services from "@/components/Services";
+// import Project from "@/components/Project";
 
 export default function Home() {
   const [revealed, setRevealed] = useState(false);
