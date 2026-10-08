@@ -1,0 +1,161 @@
+@import "tailwindcss";
+
+@theme {
+  --color-customBg: #c0c9d5;
+  --color-customText: #00010a;
+  --color-customNav: #00010a;
+  --font-helvetica: var(--font-helvetica), Arial, sans-serif;
+}
+
+:root {
+  --bg-color: #DFE4EF;
+  --text-color: #00010a;
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  overflow-x: hidden;
+}
+
+@font-face {
+  font-family: "Syne";
+  src:
+    url("/fonts/Syne-bold.ttf") format("ttf"),
+    url("/fonts/Syne-bold.ttf") format("ttf");
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Helvetica";
+  src:
+    url("/fonts/helvetica-rounded-bold-5871d05ead8de.otf") format("otf"),
+    url("/fonts/helvetica-rounded-bold-5871d05ead8de.otf") format("otf");
+  font-weight: bold;
+  font-style: normal;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #c0c9d5;
+}
+::-webkit-scrollbar-thumb {
+  background: #00010a;
+  border-radius: 4px;
+}
+
+/* ---------- Animated hamburger (draw-SVG style) ---------- */
+.burger .patty {
+  stroke-dasharray: 100 100;
+  stroke-dashoffset: 0;
+  opacity: 1;
+  transition:
+    stroke-dasharray 0.35s cubic-bezier(0.65, 0.05, 0.36, 1),
+    stroke-dashoffset 0.35s cubic-bezier(0.65, 0.05, 0.36, 1),
+    opacity 0.1s linear;
+}
+
+.burger .buns {
+  stroke-dasharray: 30 100;
+  stroke-dashoffset: 0;
+  transition:
+    stroke-dasharray 0.85s cubic-bezier(0.65, 0.05, 0.36, 1),
+    stroke-dashoffset 0.85s cubic-bezier(0.65, 0.05, 0.36, 1);
+}
+
+/* open state */
+[data-open="true"] .burger .patty {
+  stroke-dasharray: 0 100;
+  stroke-dashoffset: -50;
+  opacity: 0;
+  transition:
+    stroke-dasharray 0.35s cubic-bezier(0.65, 0.05, 0.36, 1),
+    stroke-dashoffset 0.35s cubic-bezier(0.65, 0.05, 0.36, 1),
+    opacity 0.1s linear 0.25s;
+}
+
+[data-open="true"] .burger .buns {
+  stroke-dasharray: 27.5 100;
+  stroke-dashoffset: -69;
+}
+
+/*------------------------Hero Section Explore now BTN rounded border Animation------------------------*/
+
+@property --r {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --x {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+/* Button size: 215 x 58. Border: 2.5px */
+.btn-border-wrap {
+  display: inline-flex;
+  padding: 2.5px;
+  border-radius: 9999px;
+  background: conic-gradient(
+    from calc(var(--r) - 80deg) at var(--x) 29px,
+    #99a4c2 0%,
+    #0333f3 20%,
+    #7190e4 15%
+  );
+  animation:
+    btn-rotate 3s linear -0.64s infinite,
+    btn-move-x 3s linear -0.64s infinite;
+}
+
+/* Sets the center of the gradient. */
+@keyframes btn-move-x {
+  0% {
+    --x: 46px;
+  }
+  27.06% {
+    --x: 169px;
+  }
+  50% {
+    --x: 169px;
+  }
+  77.06% {
+    --x: 46px;
+  }
+  100% {
+    --x: 46px;
+  }
+}
+
+/* Turning around immediately */
+@keyframes btn-rotate {
+  0% {
+    --r: 0deg;
+  }
+  27.06% {
+    --r: 0deg;
+  }
+  50% {
+    --r: 180deg;
+  }
+  77.06% {
+    --r: 180deg;
+  }
+  100% {
+    --r: 360deg;
+  }
+}
