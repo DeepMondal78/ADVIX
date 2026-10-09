@@ -5,6 +5,8 @@ import Hero from "../components/Hero";
 import About from "../components/About";
 import KeyFacts from "../components/KeyFacts";
 import SelectedWork from "../components/SelectedWork";
+import Capabilities from "../components/Capabilities";
+// import EdgeCross from "../ui/EdgeCross";
 // import Services from "@/components/Services";
 // import Project from "@/components/Project";
 
@@ -29,6 +31,8 @@ export default function Home() {
         <About />
         <KeyFacts />
         <SelectedWork />
+        <Capabilities />
+        {/* <EdgeCross side="right" /> */}
         {/* <Services /> */}
         {/* <Project /> */}
       </div>
