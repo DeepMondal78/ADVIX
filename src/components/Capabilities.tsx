@@ -7,8 +7,8 @@ import VideoPanel from "./VideoPanel";
 const BG = "#DFE4EF"; // card section-er bg
 const DARK = "#0b0f17";
 const ACCENT = "#0099ff";
-const SCROLL_VH = 560; // total scroll lomba (barale dhire hobe)
-const SMOOTH = 5; // koto druto follow korbe. kom = aro makhon/dhire, beshi = druto (4 theke 8 er moddhe rakho)
+const SCROLL_VH = 1420; // total scroll lomba (barale dhire hobe)
+const SMOOTH = 4; // koto druto follow korbe. kom = aro makhon/dhire, beshi = druto (4 theke 8 er moddhe rakho)
 const CROSS_ROTATE = 360; // section slide shesh hole cross koto degree ghurbe (45 = "+" theke "✕", aro halka chaile 20)
 
 const LABEL = "What we do";
@@ -154,71 +154,73 @@ export default function Capabilities() {
   const [videoOn, setVideoOn] = useState(false);
 
   useEffect(() => {
-  const el = outerRef.current;
-  const layer = layerRef.current;
-  if (!el || !layer) return;
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const el = outerRef.current;
+    const layer = layerRef.current;
+    if (!el || !layer) return;
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
 
-  let target = 0; // scroll-er asol position (0..1)
-  let cur = 0; // dhire dhire target-er dike jachhe
-  let raf = 0;
-  let last = 0;
-  let lastOn = false;
+    let target = 0; // scroll-er asol position (0..1)
+    let cur = 0; // dhire dhire target-er dike jachhe
+    let raf = 0;
+    let last = 0;
+    let lastOn = false;
 
-  const readTarget = () => {
-    const r = el.getBoundingClientRect();
-    const total = Math.max(1, r.height - window.innerHeight);
-    target = reduce ? 1 : clamp(-r.top / total);
-  };
+    const readTarget = () => {
+      const r = el.getBoundingClientRect();
+      const total = Math.max(1, r.height - window.innerHeight);
+      target = reduce ? 1 : clamp(-r.top / total);
+    };
 
-  const apply = (q: number) => {
-    const p = seg(q, 0, 0.4); // card animation
-    const s = ease(seg(q, 0.46, 0.9)); // section bame sore jay (age 0.6-0.88, ekhon lomba range)
-    const v = seg(q, 0.84, 1); // video text
+    const apply = (q: number) => {
+      const p = seg(q, 0, 0.145); // card animation
+      const s = ease(seg(q, 0.182, 0.327)); // section bame sore jay
+      const v = seg(q, 0.309, 0.909); // video content. shesh 120svh-e video sthir thake, tokhon dheu ashe
 
-    el.style.setProperty("--p", p.toFixed(4));
-    el.style.setProperty("--s", s.toFixed(4));
-    el.style.setProperty("--v", v.toFixed(4));
-    layer.style.pointerEvents = s > 0.9 ? "none" : "auto";
+      el.style.setProperty("--p", p.toFixed(4));
+      el.style.setProperty("--s", s.toFixed(4));
+      el.style.setProperty("--v", v.toFixed(4));
+      layer.style.pointerEvents = s > 0.9 ? "none" : "auto";
 
-    const on = s > 0.05;
-    if (on !== lastOn) {
-      lastOn = on;
-      setVideoOn(on);
-    }
-  };
+      const on = s > 0.05;
+      if (on !== lastOn) {
+        lastOn = on;
+        setVideoOn(on);
+      }
+    };
 
-  const loop = (now: number) => {
-    const dt = Math.min(0.064, (now - last) / 1000);
-    last = now;
-    // dhire dhire target-er dike jay (makhon-er moto)
-    cur += (target - cur) * (1 - Math.exp(-dt * SMOOTH));
-    if (Math.abs(target - cur) < 0.0002) cur = target;
-    apply(cur);
-    // target-e pouchhe gele loop thamiye dei (CPU bachay)
-    raf = cur === target ? 0 : requestAnimationFrame(loop);
-  };
+    const loop = (now: number) => {
+      const dt = Math.min(0.064, (now - last) / 1000);
+      last = now;
+      // dhire dhire target-er dike jay (makhon-er moto)
+      cur += (target - cur) * (1 - Math.exp(-dt * SMOOTH));
+      if (Math.abs(target - cur) < 0.0002) cur = target;
+      apply(cur);
+      // target-e pouchhe gele loop thamiye dei (CPU bachay)
+      raf = cur === target ? 0 : requestAnimationFrame(loop);
+    };
 
-  const kick = () => {
+    const kick = () => {
+      readTarget();
+      if (!raf) {
+        last = performance.now();
+        raf = requestAnimationFrame(loop);
+      }
+    };
+
     readTarget();
-    if (!raf) {
-      last = performance.now();
-      raf = requestAnimationFrame(loop);
-    }
-  };
+    cur = target;
+    apply(cur);
 
-  readTarget();
-  cur = target;
-  apply(cur);
-
-  window.addEventListener("scroll", kick, { passive: true });
-  window.addEventListener("resize", kick);
-  return () => {
-    window.removeEventListener("scroll", kick);
-    window.removeEventListener("resize", kick);
-    if (raf) cancelAnimationFrame(raf);
-  };
-}, []);
+    window.addEventListener("scroll", kick, { passive: true });
+    window.addEventListener("resize", kick);
+    return () => {
+      window.removeEventListener("scroll", kick);
+      window.removeEventListener("resize", kick);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
 
   const words = HEADING.split(" ");
 

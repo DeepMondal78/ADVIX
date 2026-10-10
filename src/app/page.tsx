@@ -6,6 +6,8 @@ import About from "../components/About";
 import KeyFacts from "../components/KeyFacts";
 import SelectedWork from "../components/SelectedWork";
 import Capabilities from "../components/Capabilities";
+import ClientStories from "../components/ClientStories";
+import MotionShowcase from "../components/MotionShowcase";
 // import EdgeCross from "../ui/EdgeCross";
 // import Services from "@/components/Services";
 // import Project from "@/components/Project";
@@ -32,6 +34,8 @@ export default function Home() {
         <KeyFacts />
         <SelectedWork />
         <Capabilities />
+        <ClientStories />
+        <MotionShowcase />
         {/* <EdgeCross side="right" /> */}
         {/* <Services /> */}
         {/* <Project /> */}

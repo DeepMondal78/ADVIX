@@ -12,6 +12,22 @@ const TITLE = "Watch us build.";
 const SUB = "A quick look at how ideas become real products.";
 const XF = 0.5; // video loop-er crossfade shomoy (second)
 
+// ei gulo placeholder, nijer lekha dao
+const STEPS = [
+  { n: "01", title: "Discover", text: "We listen first, then shape the idea into a clear plan." },
+  { n: "02", title: "Design", text: "Sketches turn into sharp, usable interfaces." },
+  { n: "03", title: "Build", text: "Clean, fast code that is tested before it ships." },
+  { n: "04", title: "Launch", text: "Live, measured and improved every single week." },
+];
+const CTA_LINE_1 = "Have an idea?";
+const CTA_LINE_2 = "Let's build it.";
+const CTA_LINK = "Start a project";
+const CTA_HREF = "#contact";
+
+/* ---- timeline (v = 0..1). protita step-e koto jayga: STEP_LEN. barale dhire hobe ---- */
+const STEP_START = 0.28;
+const STEP_LEN = 0.14;
+
 /* ---- soundtrack config ---- */
 const BPM = 96; // druto/dhire korte
 const MASTER_VOL = 0.55; // shobar upor-er volume (0..1)
@@ -24,6 +40,58 @@ const WHOOSH_VOL = 0.12; // sweep
 
 const EASE = "cubic-bezier(0.22,1,0.36,1)";
 const vv = (a: number, b: number) => `clamp(0, calc((var(--v) - ${a}) / ${b - a}), 1)`;
+
+/**
+ * Smooth (smoothstep) progress variable --vp-<name> : --v er [a..b] range-e 0 theke 1.
+ * Scroll-e jhatka lage na, shuru ar shesh-e komol.
+ */
+const sm = (name: string, a: number, b: number) =>
+  ({
+    [`--vp-r-${name}`]: `clamp(0, calc((var(--v) - ${a.toFixed(4)}) / ${(b - a).toFixed(4)}), 1)`,
+    [`--vp-${name}`]: `calc(var(--vp-r-${name}) * var(--vp-r-${name}) * (3 - 2 * var(--vp-r-${name})))`,
+  }) as Record<string, string>;
+
+const TITLE_WORDS = TITLE.split(" ");
+
+// shob timeline-er variable ek jaygay
+const DEFS: [string, number, number][] = [
+  // title
+  ...TITLE_WORDS.map((_, i): [string, number, number] => [`w${i}`, i * 0.03, 0.09 + i * 0.03]),
+  ["sub", 0.09, 0.16],
+  ["subo", 0.17, 0.24],
+  ["te", 0.2, 0.3], // title upore sore ar fade out
+  ["cue", 0.1, 0.15],
+  ["cueo", 0.2, 0.26],
+  ["dim", 0.2, 0.36],
+  // cta
+  ["c1", 0.86, 0.93],
+  ["c2", 0.88, 0.95],
+  ["c3", 0.93, 0.99],
+  ["c4", 0.95, 1],
+];
+// 4 step: protita step-er nijer entry/exit
+STEPS.forEach((_, i) => {
+  const a = STEP_START + i * STEP_LEN;
+  const L = STEP_LEN;
+  DEFS.push(
+    [`s${i}li`, a, a + 0.3 * L], // label ashe
+    [`s${i}ti`, a + 0.06 * L, a + 0.42 * L], // title ashe
+    [`s${i}di`, a + 0.16 * L, a + 0.52 * L], // description ashe
+    [`s${i}ni`, a, a + 0.45 * L], // boro number ashe
+    [`s${i}lo`, a + 0.7 * L, a + 0.88 * L], // label jay
+    [`s${i}to`, a + 0.72 * L, a + L], // title jay
+    [`s${i}do`, a + 0.68 * L, a + 0.9 * L], // description jay
+    [`s${i}no`, a + 0.7 * L, a + L] // number jay
+  );
+});
+
+const VARS = {
+  ...DEFS.reduce((acc, [n, a, b]) => ({ ...acc, ...sm(n, a, b) }), {} as Record<string, string>),
+  // rail-er line: linear (smooth na), scroll-er shathe sorasori bhore
+  "--vp-sp": `clamp(0, calc((var(--v) - ${STEP_START}) / ${(STEP_LEN * STEPS.length).toFixed(4)}), 1)`,
+} as React.CSSProperties;
+
+const u = (n: string) => `var(--vp-${n})`;
 
 /* ================= procedural soundtrack ================= */
 const mtof = (m: number) => 440 * Math.pow(2, (m - 69) / 12);
@@ -356,7 +424,7 @@ export default function VideoPanel({ active }: { active: boolean }) {
     }
   };
 
-  const words = TITLE.split(" ");
+  const total = String(STEPS.length).padStart(2, "0");
 
   return (
     <div className="relative h-full w-full overflow-hidden text-white" style={{ background: DARK }}>
@@ -365,7 +433,8 @@ export default function VideoPanel({ active }: { active: boolean }) {
         @keyframes vp-spin { to { transform: rotate(360deg); } }
         @keyframes vp-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.5); } 50% { box-shadow: 0 0 0 10px rgba(255,255,255,0); } }
         @keyframes vp-eq { 0%,100% { transform: scaleY(0.3); } 50% { transform: scaleY(1); } }
-        @media (prefers-reduced-motion: reduce) { .vp-blob, .vp-spin, .vp-eq { animation: none !important; } }
+        @keyframes vp-drop { 0% { transform: translateY(-100%); } 100% { transform: translateY(200%); } }
+        @media (prefers-reduced-motion: reduce) { .vp-blob, .vp-spin, .vp-eq, .vp-drop { animation: none !important; } }
       `}</style>
 
       {/* media: section sore gele zoom-out hoy */}
@@ -418,6 +487,18 @@ export default function VideoPanel({ active }: { active: boolean }) {
         />
       </div>
 
+      {/* step-gulo ashar shathe video dhire dhire dark hoy, jeno lekha porte subidha hoy */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-[3]"
+        style={{
+          ...VARS,
+          background:
+            "radial-gradient(ellipse 75% 65% at 30% 55%, rgba(0,1,10,0.78), rgba(0,1,10,0.55) 60%, rgba(0,1,10,0.7))",
+          opacity: u("dim"),
+        }}
+      />
+
       {/* frame + ghurno kon */}
       <div aria-hidden className="pointer-events-none absolute inset-3 z-[4] border border-white/25 sm:inset-5">
         {[
@@ -435,7 +516,7 @@ export default function VideoPanel({ active }: { active: boolean }) {
       {/* top bar */}
       <div
         className="absolute inset-x-0 top-0 z-[5] flex items-center justify-between px-8 pt-9 text-xs font-semibold uppercase tracking-[0.22em] sm:px-14 sm:pt-12"
-        style={{ opacity: vv(0, 0.3) }}
+        style={{ opacity: vv(0, 0.06) }}
       >
         <span className="flex items-center gap-3">
           <span className="vp-spin inline-block h-2 w-2 bg-white" style={{ animation: "vp-spin 7s linear infinite" }} />
@@ -443,34 +524,197 @@ export default function VideoPanel({ active }: { active: boolean }) {
         </span>
       </div>
 
-      {/* centre text */}
-      <div className="absolute inset-0 z-[5] flex flex-col items-center justify-center px-6 text-center">
-        <h2 className="font-medium leading-[0.92] tracking-[-0.055em]" style={{ fontSize: "clamp(52px, 11vw, 190px)" }}>
-          {words.map((w, i) => (
-            <span key={i} className="mr-[0.2em] inline-block overflow-hidden pb-[0.16em] -mb-[0.16em] align-bottom">
-              <span
-                className="inline-block"
-                style={{ transform: `translateY(calc((1 - ${vv(i * 0.15, 0.5 + i * 0.15)}) * 118%))` }}
-              >
-                {w}
-              </span>
-            </span>
-          ))}
-        </h2>
-        <p
-          className="mt-6 max-w-[380px] text-sm leading-snug text-white/70 sm:text-base"
-          style={{ opacity: vv(0.4, 0.8), transform: `translateY(calc((1 - ${vv(0.4, 0.8)}) * 16px))` }}
+      {/* ================= scroll content ================= */}
+      <div className="pointer-events-none absolute inset-0 z-[5]" style={VARS}>
+        {/* ---- 1) title ---- */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
+          <div
+            style={{
+              opacity: `calc(1 - ${u("te")})`,
+              transform: `translateY(calc(${u("te")} * -6svh)) scale(calc(1 + 0.1 * ${u("te")}))`,
+              willChange: "transform, opacity",
+            }}
+          >
+            <h2 className="font-medium leading-[0.92] tracking-[-0.055em]" style={{ fontSize: "clamp(52px, 11vw, 190px)" }}>
+              {TITLE_WORDS.map((w, i) => (
+                <span key={i} className="mr-[0.2em] inline-block overflow-hidden pb-[0.16em] -mb-[0.16em] align-bottom">
+                  <span className="inline-block" style={{ transform: `translateY(calc((1 - ${u(`w${i}`)}) * 118%))` }}>
+                    {w}
+                  </span>
+                </span>
+              ))}
+            </h2>
+            <p
+              className="mx-auto mt-6 max-w-[380px] text-sm leading-snug text-white/70 sm:text-base"
+              style={{
+                opacity: `calc(${u("sub")} * (1 - ${u("subo")}))`,
+                transform: `translateY(calc((1 - ${u("sub")}) * 18px))`,
+              }}
+            >
+              {SUB}
+            </p>
+          </div>
+        </div>
+
+        {/* "Keep scrolling" cue */}
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 pb-9 text-[11px] font-semibold uppercase tracking-[0.28em] text-white/70 sm:pb-12"
+          style={{ opacity: `calc(${u("cue")} * (1 - ${u("cueo")}))` }}
         >
-          {SUB}
-        </p>
+          Keep scrolling
+          <span className="relative block h-10 w-px overflow-hidden bg-white/25">
+            <span
+              className="vp-drop absolute left-0 top-0 block h-1/2 w-full bg-white"
+              style={{ animation: "vp-drop 1.8s cubic-bezier(0.65,0,0.35,1) infinite" }}
+            />
+          </span>
+        </div>
+
+        {/* ---- 2) steps: ek bare ek-i step, puro screen jure ---- */}
+        {STEPS.map((s, i) => (
+          <div key={s.n} className="absolute inset-0 flex items-center px-8 sm:px-14 lg:px-[72px]">
+            {/* pichone boro outline number */}
+            <div
+              aria-hidden
+              className="absolute right-[2vw] top-1/2 select-none font-medium leading-none tracking-[-0.06em] lg:right-[15vw]"
+              style={{
+                fontSize: "clamp(200px, 32vw, 560px)",
+                color: "transparent",
+                WebkitTextStroke: "1px rgba(255,255,255,0.26)",
+                opacity: `calc(${u(`s${i}ni`)} * (1 - ${u(`s${i}no`)}))`,
+                transform: `translateY(calc(-50% + (1 - ${u(`s${i}ni`)}) * 16svh - ${u(`s${i}no`)} * 16svh))`,
+                willChange: "transform, opacity",
+              }}
+            >
+              {s.n}
+            </div>
+
+            <div className="relative w-full max-w-[920px]">
+              {/* label: 01 / 04 + nijer theke ankha line */}
+              <div
+                className="flex items-center gap-4 font-mono text-xs uppercase tracking-[0.22em] text-white/75"
+                style={{
+                  opacity: `calc(${u(`s${i}li`)} * (1 - ${u(`s${i}lo`)}))`,
+                  transform: `translateY(calc((1 - ${u(`s${i}li`)}) * 14px))`,
+                }}
+              >
+                <span className="vp-spin inline-block h-2 w-2 bg-white" style={{ animation: "vp-spin 7s linear infinite" }} />
+                <span>
+                  {s.n} / {total}
+                </span>
+                <span
+                  className="block h-px w-[min(240px,30vw)] origin-left bg-white/55"
+                  style={{ transform: `scaleX(calc(${u(`s${i}li`)} * (1 - ${u(`s${i}lo`)})))` }}
+                />
+              </div>
+
+              {/* boro title: niche theke uthe ashe, shesh-e upore chole jay */}
+              <h3
+                className="mt-6 font-medium leading-[0.95] tracking-[-0.055em]"
+                style={{ fontSize: "clamp(56px, 10vw, 168px)" }}
+              >
+                <span className="block overflow-hidden pb-[0.16em] -mb-[0.16em]">
+                  <span
+                    className="block"
+                    style={{
+                      transform: `translateY(calc((1 - ${u(`s${i}ti`)}) * 118% - ${u(`s${i}to`)} * 118%))`,
+                      willChange: "transform",
+                    }}
+                  >
+                    {s.title}
+                  </span>
+                </span>
+              </h3>
+
+              {/* description */}
+              <p
+                className="mt-8 max-w-[420px] font-serif text-lg italic leading-snug text-white/85 sm:text-xl lg:text-2xl"
+                style={{
+                  opacity: `calc(${u(`s${i}di`)} * (1 - ${u(`s${i}do`)}))`,
+                  transform: `translateY(calc((1 - ${u(`s${i}di`)}) * 22px - ${u(`s${i}do`)} * 22px))`,
+                }}
+              >
+                {s.text}
+              </p>
+            </div>
+          </div>
+        ))}
+
+        {/* dan dike-r rail: kon step cholche + scroll progress */}
+        <div
+          aria-hidden
+          className="absolute right-8 top-1/2 hidden -translate-y-1/2 sm:right-14 lg:right-[72px] lg:block"
+          style={{ opacity: `calc(${u("s0li")} * (1 - ${u("c1")}))` }}
+        >
+          <div className="relative flex flex-col items-end gap-8">
+            <span className="absolute bottom-2 right-[3px] top-2 w-px bg-white/20" />
+            <span
+              className="absolute bottom-2 right-[3px] top-2 w-px origin-top bg-white"
+              style={{ transform: "scaleY(var(--vp-sp))" }}
+            />
+            {STEPS.map((s, i) => {
+              const vis = `(${u(`s${i}li`)} * (1 - ${u(`s${i}lo`)}))`;
+              return (
+                <div key={s.n} className="relative flex items-center gap-4" style={{ opacity: `calc(0.38 + 0.62 * ${vis})` }}>
+                  <span className="font-mono text-[11px] uppercase tracking-[0.2em]">
+                    {s.n} {s.title}
+                  </span>
+                  <span
+                    className="block h-[7px] w-[7px] bg-white"
+                    style={{ transform: `scale(calc(1 + 0.7 * ${vis}))` }}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ---- 3) shesh-er CTA ---- */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
+          <h3 className="font-medium leading-[0.95] tracking-[-0.055em]" style={{ fontSize: "clamp(44px, 8.4vw, 144px)" }}>
+            {[
+              { t: CTA_LINE_1, v: "c1" },
+              { t: CTA_LINE_2, v: "c2" },
+            ].map((l) => (
+              <span key={l.v} className="block overflow-hidden pb-[0.16em] -mb-[0.16em]">
+                <span className="block" style={{ transform: `translateY(calc((1 - ${u(l.v)}) * 118%))` }}>
+                  {l.t}
+                </span>
+              </span>
+            ))}
+          </h3>
+
+          <div
+            className="mt-12"
+            style={{
+              opacity: u("c3"),
+              // scale(0) hole link click kora jay na, tai dekha na gele click-o hobe na
+              transform: `translateY(calc((1 - ${u("c3")}) * 18px)) scale(${u("c3")})`,
+            }}
+          >
+            <a
+              href={CTA_HREF}
+              className="group pointer-events-auto relative inline-flex items-center gap-10 pb-3 font-mono text-[13px] uppercase tracking-[0.08em] sm:text-sm"
+            >
+              {CTA_LINK}
+              <span className="transition-transform duration-500 group-hover:translate-x-1.5">→</span>
+              <span
+                aria-hidden
+                className="absolute bottom-0 left-0 h-px w-full origin-left bg-white"
+                style={{ transform: `scaleX(${u("c4")})` }}
+              />
+            </a>
+          </div>
+        </div>
       </div>
 
       {/* sound button */}
       <div
-        className="absolute inset-x-0 bottom-0 z-10 flex items-center justify-end px-8 pb-9 sm:px-14 sm:pb-12"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-center justify-end px-8 pb-9 sm:px-14 sm:pb-12"
         style={{
-          opacity: vv(0.5, 1),
-          transform: `translateY(calc((1 - ${vv(0.5, 1)}) * 20px))`,
+          opacity: vv(0.04, 0.12),
+          transform: `translateY(calc((1 - ${vv(0.04, 0.12)}) * 20px))`,
           transition: `opacity 300ms ${EASE}`,
         }}
       >
@@ -478,7 +722,7 @@ export default function VideoPanel({ active }: { active: boolean }) {
           type="button"
           onClick={toggleSound}
           aria-pressed={soundOn}
-          className="flex items-center gap-3 rounded-full border border-white/40 bg-white/10 px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] backdrop-blur transition-colors hover:bg-white hover:text-[#00010A]"
+          className="pointer-events-auto flex items-center gap-3 rounded-full border border-white/40 bg-white/10 px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] backdrop-blur transition-colors hover:bg-white hover:text-[#00010A]"
           style={!soundOn ? { animation: "vp-pulse 1.8s ease-in-out infinite" } : undefined}
         >
           {soundOn ? (
