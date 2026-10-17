@@ -89,6 +89,7 @@ export default function StudioFooter() {
 
   const marq = Array.from({ length: 6 }).flatMap(() => MARQUEE);
 
+  
   return (
     <footer
       ref={rootRef}
