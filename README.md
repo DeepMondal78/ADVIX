@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Advix
 
-## Getting Started
+Advix is a modern, animated, **frontend-only** company/agency website with
+responsive sections, 3D visuals and smooth scrolling.
 
-First, run the development server:
+**Live demo:** https://advix-xi.vercel.app/
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Tech Stack
+
+- Next.js 16 (App Router) and React 19
+- TypeScript
+- Tailwind CSS 4
+- Three.js (React Three Fiber) for 3D visuals
+- Framer Motion and GSAP for animation
+- Lenis for smooth scrolling
+
+## Architecture
+
+Advix is a client-facing Next.js website with no backend API, no database,
+no admin panel and no user accounts.
+
+- There are **no data-mutating endpoints** (no `src/app/api` routes, no
+  server actions), so authentication and role-based access control do not
+  apply.
+- All content is static and bundled with the frontend source in `src/`.
+- No secrets are required to run the project. `.env.example` only holds a
+  public site URL.
+
+## Project Structure
+
+```
+public/        Static assets (images, icons, models)
+src/           Application source (pages, layouts, components)
+.env.example   Environment variables with placeholder values
+Dockerfile     Production container build
+HowToSetup.md  Full installation guide (local, VPS, Docker)
+CHANGELOG.md   Version history
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Quick Start
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+git clone https://github.com/DeepMondal78/ADVIX.git
+cd ADVIX
+cp .env.example .env.local
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open http://localhost:3000 in your browser.
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+| Command         | Description                    |
+| --------------- | ------------------------------ |
+| `npm run dev`   | Start the development server   |
+| `npm run build` | Create a production build      |
+| `npm start`     | Run the production build       |
+| `npm run lint`  | Run ESLint                     |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+See [HowToSetup.md](./HowToSetup.md) for step-by-step instructions to deploy
+on a VPS (PM2 + Nginx) or with Docker.
 
-## Deploy on Vercel
+## Changelog
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See [CHANGELOG.md](./CHANGELOG.md).

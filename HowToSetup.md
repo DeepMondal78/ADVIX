@@ -1,7 +1,7 @@
 # HowToSetup — Advix
 
-Advix is a Next.js 16 / React 19 / TypeScript / Tailwind CSS 4 website with
-Three.js (React Three Fiber), Framer Motion, GSAP and Lenis.
+Advix is a frontend-only Next.js 16 / React 19 / TypeScript / Tailwind CSS 4
+website with Three.js (React Three Fiber), Framer Motion, GSAP and Lenis.
 
 ## Requirements
 - Node.js 20.9 or newer
@@ -26,7 +26,7 @@ npm start
 
 ## 3. Deploy on a VPS (Ubuntu + PM2 + Nginx)
 ```bash
-# Install Node.js 20+ and PM2
+# Install Node.js 20+, Nginx and PM2
 sudo apt update && sudo apt install -y nginx
 sudo npm install -g pm2
 
@@ -57,7 +57,7 @@ Enable it with `sudo ln -s /etc/nginx/sites-available/advix /etc/nginx/sites-ena
 then `sudo nginx -t && sudo systemctl reload nginx`. Add HTTPS with `sudo certbot --nginx`.
 
 ## 4. Deploy with Docker
-Requires `output: "standalone"` in `next.config.ts` and the `Dockerfile` in the repo root.
+Uses the `Dockerfile` in the repo root and `output: "standalone"` in `next.config.ts`.
 ```bash
 docker build -t advix .
 docker run -d -p 3000:3000 --env-file .env.local --name advix advix
@@ -65,10 +65,11 @@ docker run -d -p 3000:3000 --env-file .env.local --name advix advix
 Open http://localhost:3000
 
 ## 5. Database
-Not applicable. Advix has no database.
+Not applicable. Advix is frontend-only and has no database.
 
 ## 6. First admin login
-Not applicable. Advix has no admin panel or user accounts.
+Not applicable. Advix has no backend, admin panel, authentication or
+user roles.
 
 ## 7. Branding changes
 - Logo, favicon and images: replace files in `public/`
